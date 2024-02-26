@@ -1,10 +1,13 @@
 package com.hibernate.hibernatedemo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity  //entity bean maps to rows in database
 @Table(name = "Course") //defines the name of the table if difference from code
@@ -20,11 +23,23 @@ public class Course {
     @Column(name = "name", nullable = false) //name cannot be null, prevents bad data from coming through
     private String name;
 
+    @OneToMany(mappedBy = "course") //one course has many reviews, using the name of the variable INSIDE the review
+    //anytime it's *ToOne it's lazy fetching
+    private List<Review> reviewList = new ArrayList<>();
+
+
+    /*
     //hibernate offering for things like last change and when it was added
     @UpdateTimestamp
     private LocalDateTime lastUpdatedDate;
     @CreatedDate
     private LocalDateTime createdDate;
+
+     */
+
+    @ManyToMany(mappedBy = "courses") //in order to avoid multiple join tables, make one side the owner (doesn't matter who) this makes student the owning side
+    @JsonIgnore
+    private List<Student> students = new ArrayList<>();
 
     public Course(String name) {
         this.name = name;
@@ -42,6 +57,26 @@ public class Course {
 
     public long getId() {
         return id;
+    }
+
+    public List<Review> getReviewList() {
+        return reviewList;
+    }
+
+    public void addReview(Review review) {
+        this.reviewList.add(review);
+    }
+
+    public void removeReview(Review review){
+        this.reviewList.remove(review);
+    }
+
+    public List<Student> getStudents() {
+        return students;
+    }
+
+    public void addStudents(Student student) {
+        this.students.add(student);
     }
 
     @Override

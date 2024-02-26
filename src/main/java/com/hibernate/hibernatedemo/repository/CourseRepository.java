@@ -1,12 +1,15 @@
 package com.hibernate.hibernatedemo.repository;
 
 import com.hibernate.hibernatedemo.entity.Course;
+import com.hibernate.hibernatedemo.entity.Review;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 @Transactional
@@ -69,6 +72,37 @@ public class CourseRepository {
 
     }
 
+    public void addReviewToCourse() {
+        //get the course 1003
+        Course course = findById(10003L);
+        logger.info(" course.getReviews - {}",course.getReviewList());
+
+        //add 2 reviews
+        Review review1 = new Review("Was a blast","5");
+        Review review2 = new Review("Learned so much","4");
+
+        //setting the relationship
+        course.addReview(review1);
+        review1.setCourse(course); //they are being saved to each other
+        course.addReview(review2);
+        review2.setCourse(course);
+
+        //save to the database
+        entityManager.persist(review1);
+        entityManager.persist(review2);
+    }
+
+    public void addReviewToCourse(Long courseId, List<Review> reviews) {
+        Course course = findById(courseId);
+
+        for(Review review : reviews) {
+            //setting the relationship
+            course.addReview(review);
+            review.setCourse(course);
+            //save to the database
+            entityManager.persist(review);
+        }
+    }
 }
 
 
